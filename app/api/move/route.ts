@@ -28,11 +28,11 @@ export async function POST(request: Request){
     board.printBoard();
     game.moves = board.moves;
     if(board.checkWin() == game.playerTurn){
-        game.result = "win";
+        game.result = "Won";
     }else if(board.checkWin() == board.oppositeTurn(game.playerTurn)){
-        game.result = "lose";
+        game.result = "Lost";
     }else if(board.moves.length == 9){
-        game.result = "draw";
+        game.result = "Draw";
     }
     game.save();
     return NextResponse.json({ message: game, }, { status: 200 })
