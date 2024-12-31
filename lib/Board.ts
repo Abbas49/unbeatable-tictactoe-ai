@@ -14,7 +14,7 @@ export default class Board{
         }
     }
     gameEvaluator(t : number, turn:string) : number{
-        let winner = this.checkWin();
+        const winner = this.checkWin();
         if(winner == this.turn) return 1;
         if(winner == this.oppositeTurn(this.turn)) return -1;
         if(t == 10){
@@ -27,7 +27,7 @@ export default class Board{
             for(let j = 0; j < 3; j++){
                 if(this.board[i][j] == '.'){
                     this.board[i][j] = turn;
-                    let temp = this.gameEvaluator(t+1, this.oppositeTurn(turn));
+                    const temp = this.gameEvaluator(t+1, this.oppositeTurn(turn));
                     if(turn == this.turn){
                         if(temp > result || isFirst){
                             result = temp;
@@ -92,7 +92,7 @@ export default class Board{
             console.log("the game ended.");
             return;
         }
-        let position = this.numberToPair(num);
+        const position = this.numberToPair(num);
         if(this.board[position[0]][position[1]] == '.'){
             this.board[position[0]][position[1]] = this.turn
             this.moves.push(num);
@@ -102,7 +102,7 @@ export default class Board{
         }
         this.turn = this.oppositeTurn(this.turn);
     }
-    oppositeTurn(turn:String){
+    oppositeTurn(turn:string){
         return (turn == 'X'? 'O': 'X');
     }
     getBestMove(): number{
@@ -113,7 +113,7 @@ export default class Board{
             let position = this.numberToPair(i);
             if(this.board[position[0]][position[1]] != '.') continue;
             this.board[position[0]][position[1]] = this.turn
-            let check = this.gameEvaluator(this.playCount+1, this.oppositeTurn(this.turn));
+            const check = this.gameEvaluator(this.playCount+1, this.oppositeTurn(this.turn));
             if(check> bestResult || isFirst){
                 bestMove = i;
                 bestResult = check;

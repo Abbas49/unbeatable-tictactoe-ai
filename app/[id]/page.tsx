@@ -9,9 +9,9 @@ export default function Game(props: { params: Promise<{ id: string }> }) {
   const [message, setMessage] = useState<string>();
   const [isEnd, setEnd] = useState(false);
   const router = useRouter();
-  let board: string[] = "         ".split("");
+  const board: string[] = "         ".split("");
   for (let i = 0; i < moves.length; i++) {
-    board[moves[i] - 1] = i % 2 == 0 ? "X" : "O";
+    board[moves[i] - 1] = (i % 2 == 0 ? "X" : "O");
   }
   useEffect(() => {
     const fetchData = async () => {
@@ -24,6 +24,11 @@ export default function Game(props: { params: Promise<{ id: string }> }) {
           id: params.id,
         }),
       }).then((e) => e.json());
+      if(game.message == "Invalid game id"){
+        setMessage(game.message);
+        setEnd(true);
+        return;
+      }
       setMoves(game.message.moves || []);
       if(game.message.result != null){
         setEnd(true);
@@ -31,7 +36,7 @@ export default function Game(props: { params: Promise<{ id: string }> }) {
       }
     };
     fetchData();
-  }, []);
+  }, [params.id]);
   async function clickHandler(num: number) {
     await fetch("/api/move", {
       method: "POST",

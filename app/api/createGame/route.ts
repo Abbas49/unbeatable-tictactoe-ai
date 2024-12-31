@@ -11,6 +11,7 @@ export async function POST(request: Request){
             throw new Error("Player turn not found.")
         }
     } catch (error) {
+        console.error(error);
         return NextResponse.json(
             {
                 message: "Invalid JSON in request body"
@@ -27,7 +28,7 @@ export async function POST(request: Request){
     }
     let moves: number[] = [];
     if(req.playerTurn == 'O'){
-        let board = new Board([]);
+        const board = new Board([]);
         board.play(board.getBestMove());
         moves = board.moves;
     }

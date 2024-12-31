@@ -12,6 +12,7 @@ export async function POST(request: Request){
     try{
         game = await Game.findById(req.id);
     }catch(error){
+        console.error(error);
         return NextResponse.json({ message: "Invalid game id"}, { status: 400 });
     }
     return NextResponse.json({ message: game, }, { status: 200 })

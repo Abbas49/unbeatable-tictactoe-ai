@@ -13,12 +13,13 @@ export async function POST(request: Request){
     try{
         game = await Game.findById(req.id);
     }catch(error){
+        console.error(error);
         return NextResponse.json({ message: "Invalid game id"}, { status: 400 });
     }
     if(game.result != null){
         return NextResponse.json({ message: "Game has ended"}, { status: 400 });
     }
-    let moves: number[] = game.moves;
+    const moves: number[] = game.moves;
     if(moves.includes(req.move) || !(req.move >= 1 && req.move <= 9)){
         return NextResponse.json({ message: "Invalid move"}, { status: 400 });
     }
