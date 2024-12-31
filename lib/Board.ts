@@ -54,7 +54,8 @@ export default class Board{
             }
             if(x == 3) return 'X';
             if(o == 3) return 'O';
-            x = 0, o = 0;
+            x = 0;
+            o = 0;
             for(let j = 0; j < 3; j++){
                 if(this.board[j][i] == 'X') x++;
                 if(this.board[j][i] == 'O') o++;
@@ -110,7 +111,7 @@ export default class Board{
         let bestResult = 0;
         let isFirst = true;
         for(let i = 1; i <= 9; i++){
-            let position = this.numberToPair(i);
+            const position = this.numberToPair(i);
             if(this.board[position[0]][position[1]] != '.') continue;
             this.board[position[0]][position[1]] = this.turn
             const check = this.gameEvaluator(this.playCount+1, this.oppositeTurn(this.turn));
