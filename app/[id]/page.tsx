@@ -7,7 +7,8 @@ export default function Game(props: {params: Promise<{id: string}>}){
     const params = React.use(props.params);
     const [moves, setMoves] = useState<number[]>([]);
     const [message, setMessage] = useState<string>();
-    let board: string[] = ".........".split('');
+    const [isEnd, setEnd] = useState(false);
+    let board: string[] = "         ".split('');
     for(let i = 0; i < moves.length; i++){
         board[moves[i]-1] = (i%2 == 0 ? 'X' : 'O');
     }
@@ -36,33 +37,33 @@ export default function Game(props: {params: Promise<{id: string}>}){
                 id: params.id,
                 move: num
             })
-        }).then((e) =>{
-            if(e.status != 200) throw new Error("error")
-            return e.json()
-        }).then((e)=>{
-            setMoves(e.message.moves || []);
-            setMessage(e.message.result || "");
+        }).then(async (e) =>{
+            const res = await e.json();
+            if(e.status != 200) throw new Error(res.message);
+            setMoves(res.message.moves || []);
+            setMessage(res.message.result || "");
+            if(res.message.result != null){
+                setEnd(true);
+            }
         }).catch((error)=>{
-            console.log(error);
-            setMessage("game has ended");
+            console.log(error.text);
+            setMessage(error.message);
         })
     }
     console.log(params.id);
     return(
         <div className="flex flex-col justify-center items-center h-screen">
-            <p>{params.id}</p>
-            <div>
-                {moves.map((e)=>{
-                    return <span>{e}, </span>
-                })}
-            </div>
-            <br />
-            <br />
-            <div>
+            <div className="grid grid-cols-3 grid-rows-3 max-w-80 w-9/12 aspect-square">
             {
                 board.map((value, index)=>{
                     index++;
-                    return <><button className="w-20 h-20 border-2 text-3xl" key={index} onClick={()=>clickHandler(index)} >{value}</button> {index%3==0?<br></br>:""}</>
+                    let shadow = "0px 0px 16px rgba(47,17,210,1), 0px 0px 16px rgba(47,17,210,1), 0px 0px 16px rgba(47,17,210,1)";
+                    let color = "text-blue-500"
+                    if(value == 'O'){
+                        color = "text-red-500";
+                        shadow = "0px 0px 16px rgba(210,17,17,1)";
+                    }
+                    return <button style={{textShadow: shadow}} className={`border-2 text-5xl ${color}`} key={index} onClick={()=>clickHandler(index)} >{value}</button>
                 })
             }
             </div>
