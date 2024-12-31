@@ -10,9 +10,11 @@ export default function Game(props: { params: Promise<{ id: string }> }) {
   const [isEnd, setEnd] = useState(false);
   const router = useRouter();
   const board: string[] = "         ".split("");
-  for (let i = 0; i < moves.length; i++) {
-    board[moves[i] - 1] = (i % 2 == 0 ? "X" : "O");
-  }
+  useEffect(() => {
+    for (let i = 0; i < moves.length; i++) {
+      board[moves[i] - 1] = (i % 2 == 0 ? "X" : "O");
+    }
+  }, [moves]);
   useEffect(() => {
     const fetchData = async () => {
       const game = await fetch("/api/getGame", {
