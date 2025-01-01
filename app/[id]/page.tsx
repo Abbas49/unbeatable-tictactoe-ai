@@ -3,21 +3,32 @@
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
+interface GameState{
+  moves: number[];
+  result: string | null;
+  message: string;
+  isEnd: boolean;
+}
+
 export default function Game(props: { params: Promise<{ id: string }> }) {
   const params = React.use(props.params);
-  const [moves, setMoves] = useState<number[]>([]);
-  const [message, setMessage] = useState<string>();
-  const [isEnd, setEnd] = useState(false);
+  const [gameState, setGameState] = useState<GameState>({
+    moves: [],
+    result: null,
+    message: "",
+    isEnd: false,
+  });
   const router = useRouter();
-  const board: string[] = "         ".split("");
-  useEffect(() => {
-    for (let i = 0; i < moves.length; i++) {
-      board[moves[i] - 1] = (i % 2 == 0 ? "X" : "O");
-    }
-  }, [moves]);
+  const board = React.useMemo(() => {
+    const boardArray = Array(9).fill(' ');
+    gameState.moves.forEach((move, index) => {
+      boardArray[move - 1] = index % 2 === 0 ? 'X' : 'O';
+    });
+    return boardArray;
+  }, [gameState.moves]);
   useEffect(() => {
     const fetchData = async () => {
-      const game = await fetch("/api/getGame", {
+      await fetch("/api/getGame", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -25,17 +36,21 @@ export default function Game(props: { params: Promise<{ id: string }> }) {
         body: JSON.stringify({
           id: params.id,
         }),
-      }).then((e) => e.json());
-      if(game.message == "Invalid game id"){
-        setMessage(game.message);
-        setEnd(true);
-        return;
-      }
-      setMoves(game.message.moves || []);
-      if(game.message.result != null){
-        setEnd(true);
-        setMessage(game.message.result);
-      }
+      }).then((e) => e.json()).then((game) => {
+        if(game.message == "Invalid game id"){
+          setGameState({...gameState, message: game.message, isEnd: true});
+          return;
+        }
+        const state: GameState = {
+          ...gameState,
+          moves: game.message.moves || [],
+        }
+        if(game.message.result != null){
+          state.isEnd = true;
+          state.message = game.message.result;
+        }
+        setGameState(state);
+      });
     };
     fetchData();
   }, [params.id]);
@@ -53,15 +68,19 @@ export default function Game(props: { params: Promise<{ id: string }> }) {
       .then(async (e) => {
         const res = await e.json();
         if (e.status != 200) throw new Error(res.message);
-        setMoves(res.message.moves || []);
-        setMessage(res.message.result || "");
-        if (res.message.result != null) {
-          setEnd(true);
+        const state: GameState = {
+          ...gameState,
+          moves: res.message.moves || [],
+          message: res.message.result || "",
         }
+        if (res.message.result != null) {
+          state.isEnd = true;
+        }
+        setGameState(state);
       })
       .catch((error) => {
         console.log(error.text);
-        setMessage(error.message);
+        setGameState({...gameState, message: error.message});
       });
   }
   console.log(params.id);
@@ -98,8 +117,8 @@ export default function Game(props: { params: Promise<{ id: string }> }) {
           );
         })}
       </div>
-      <p className="text-5xl mt-10 text-gray-200">{message}</p>
-      {isEnd ? (
+      <p className="text-5xl mt-10 text-gray-200">{gameState.message}</p>
+      {gameState.isEnd ? (
         <button
             onClick={() => {router.push("/")}}
           className="mt-4 px-6 py-3 bg-indigo-600 text-white 
